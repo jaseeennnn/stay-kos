@@ -3,6 +3,7 @@
 namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
+use CodeIgniter\Database\RawSql;
 
 class CreateSessions extends Migration
 {
@@ -12,7 +13,7 @@ class CreateSessions extends Migration
         $this->forge->addField([
             'id' => ['type'=>'VARCHAR','constraint'=>128],
             'ip_address' => ['type'=>'VARCHAR','constraint'=>45],
-            'timestamp' => ['type'=>'TIMESTAMP','default'=>'CURRENT_TIMESTAMP'],
+            'timestamp' => ['type'=>'TIMESTAMP','default'=> new RawSql('CURRENT_TIMESTAMP')],
             'data' => ['type'=>'BLOB'],
         ]);
 
