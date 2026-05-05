@@ -6,6 +6,7 @@ use CodeIgniter\Controller;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use App\Services\DashboardService;
 
 /**
  * BaseController provides a convenient place for loading components
@@ -26,6 +27,9 @@ abstract class BaseController extends Controller
      */
 
     // protected $session;
+    protected $request;
+    protected $helpers = ['url', 'form', 'array', 'upload'];
+    protected $dashboardService;
 
     /**
      * @return void
@@ -41,5 +45,31 @@ abstract class BaseController extends Controller
 
         // Preload any models, libraries, etc, here.
         // $this->session = service('session');
+
+        // ── Inject global view data untuk semua halaman ──────────────────────
+        $this->dashboardService = new DashboardService();
+
+        $data = $this->dashboardService->getPendingData();
+
+        \Config\Services::renderer()->setData($data);
+    }
+
+    /**
+     * Standarisasi JSON response untuk AJAX.
+     * Selalu menyertakan CSRF token terbaru.
+     */
+    protected function jsonResponse(
+        string $status,
+        string $message,
+        array $extra = [],
+        int $code = 200
+    ): ResponseInterface {
+        return $this->response
+            ->setStatusCode($code)
+            ->setJSON(array_merge([
+                'status'  => $status,
+                'message' => $message,
+                'csrf'    => csrf_hash(),
+            ], $extra));
     }
 }
